@@ -1,5 +1,5 @@
 # reflex-aws-cloudtrail-not-encrypted
-Detect if a Cloudtrail trail does not encrypt log files. 
+Detect if a Cloudtrail trail does not encrypt log files . 
 
 ## Usage
 To use this rule either add it to your `reflex.yaml` configuration file:  
