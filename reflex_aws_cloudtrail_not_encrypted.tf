@@ -1,4 +1,4 @@
-module "cloudtrail_not_encrypted" {
+module "reflex_aws_cloudtrail_not_encrypted" {
   source           = "git::https://github.com/cloudmitigator/reflex-engine.git//modules/cwe_lambda"
   rule_name        = "CloudtrailNotEncrypted"
   rule_description = "Detect if a Cloudtrail trail does not encrypt log files. "
@@ -25,7 +25,7 @@ PATTERN
 
   function_name   = "CloudtrailNotEncrypted"
   source_code_dir = "${path.module}/source"
-  handler         = "cloudtrail_not_encrypted.lambda_handler"
+  handler         = "reflex_aws_cloudtrail_not_encrypted.lambda_handler"
   lambda_runtime  = "python3.7"
   environment_variable_map = {
     SNS_TOPIC = var.sns_topic_arn,
