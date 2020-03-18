@@ -1,4 +1,4 @@
-""" Module for ReflexAwsCloudtrailNotEncrypted """
+""" Module for CloudtrailNotEncrypted """
 
 import json
 import os
@@ -7,7 +7,7 @@ import boto3
 from reflex_core import AWSRule
 
 
-class ReflexAwsCloudtrailNotEncrypted(AWSRule):
+class CloudtrailNotEncrypted(AWSRule):
     """ Detect if a Cloudtrail trail does not encrypt log files. """
 
     client = boto3.client("cloudtrail")
@@ -31,7 +31,9 @@ class ReflexAwsCloudtrailNotEncrypted(AWSRule):
                 self.trail_name
             ]
         )
-        return bool("KmsKeyId" in response['trailList'][0].keys)
+        if "KmsKeyId" in response['trailList'][0].keys():
+            return bool(response['trailList'][0]["KmsKeyId"])
+        return False
 
     def get_remediation_message(self):
         """ Returns a message about the remediation action that occurred """
@@ -41,5 +43,5 @@ class ReflexAwsCloudtrailNotEncrypted(AWSRule):
 
 def lambda_handler(event, _):
     """ Handles the incoming event """
-    rule = ReflexAwsCloudtrailNotEncrypted(json.loads(event["Records"][0]["body"]))
+    rule = CloudtrailNotEncrypted(json.loads(event["Records"][0]["body"]))
     rule.run_compliance_rule()
