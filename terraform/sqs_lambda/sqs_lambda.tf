@@ -1,30 +1,10 @@
-module "reflex_aws_cloudtrail_not_encrypted" {
-  source           = "git::https://github.com/cloudmitigator/reflex-engine.git//modules/cwe_lambda"
-  rule_name        = "CloudtrailNotEncrypted"
-  rule_description = "Detect if a Cloudtrail trail does not encrypt log files. "
+module "sqs_lambda" {
+  source = "git::https://github.com/cloudmitigator/reflex-engine.git//modules/sqs_lambda?ref=v0.6.0"
 
-  event_pattern = <<PATTERN
-{
-  "source": [
-    "aws.cloudtrail"
-  ],
-  "detail-type": [
-    "AWS API Call via CloudTrail"
-  ],
-  "detail": {
-    "eventSource": [
-      "cloudtrail.amazonaws.com"
-    ],
-    "eventName": [
-      "CreateTrail",
-      "UpdateTrail"
-    ]
-  }
-}
-PATTERN
-
+  cloudwatch_event_rule_id  = var.cloudwatch_event_rule_id
+  cloudwatch_event_rule_arn = var.cloudwatch_event_rule_arn
   function_name   = "CloudtrailNotEncrypted"
-  source_code_dir = "${path.module}/source"
+  source_code_dir = "${path.module}/../../source"
   handler         = "reflex_aws_cloudtrail_not_encrypted.lambda_handler"
   lambda_runtime  = "python3.7"
   environment_variable_map = {
@@ -45,8 +25,6 @@ PATTERN
   ]
 }
 EOF
-
-
 
   queue_name    = "CloudtrailNotEncrypted"
   delay_seconds = 0
