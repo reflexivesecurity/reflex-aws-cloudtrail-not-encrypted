@@ -4,7 +4,7 @@ import json
 import os
 
 import boto3
-from reflex_core import AWSRule
+from reflex_core import AWSRule, subscription_confirmation
 
 
 class CloudtrailNotEncrypted(AWSRule):
@@ -26,22 +26,24 @@ class CloudtrailNotEncrypted(AWSRule):
         Return True if it is compliant, and False if it is not.
         """
 
-        response = self.client.describe_trails(
-            trailNameList=[
-                self.trail_name
-            ]
-        )
-        if "KmsKeyId" in response['trailList'][0].keys():
-            return bool(response['trailList'][0]["KmsKeyId"])
+        response = self.client.describe_trails(trailNameList=[self.trail_name])
+        if "KmsKeyId" in response["trailList"][0].keys():
+            return bool(response["trailList"][0]["KmsKeyId"])
         return False
 
     def get_remediation_message(self):
         """ Returns a message about the remediation action that occurred """
-        return f"The trail named {self.trail_name} does not have encryption " \
-               f"enabled. "
+        return (
+            f"The trail named {self.trail_name} does not have encryption " f"enabled. "
+        )
 
 
 def lambda_handler(event, _):
     """ Handles the incoming event """
-    rule = CloudtrailNotEncrypted(json.loads(event["Records"][0]["body"]))
+    print(event)
+    event_payload = json.loads(event["Records"][0]["body"])
+    if subscription_confirmation.is_subscription_confirmation(event_payload):
+        subscription_confirmation.confirm_subscription(event_payload)
+        return
+    rule = CloudtrailNotEncrypted(event_payload)
     rule.run_compliance_rule()
